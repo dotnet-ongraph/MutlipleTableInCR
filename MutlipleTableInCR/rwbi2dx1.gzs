@@ -1,0 +1,50 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Data.SqlClient;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace MutlipleTableInCR
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            SqlConnection sqlCon = new SqlConnection(@"Data Source=(local)\sqle2012; Initial Catalog=DotnetMob; Integrated Security=True;");
+            sqlCon.Open();
+            SqlDataAdapter sqlDa = new SqlDataAdapter("ProductReport",sqlCon);
+            sqlDa.SelectCommand.CommandType = CommandType.StoredProcedure;
+            DataSet dsProduct = new DataSet();
+            sqlDa.Fill(dsProduct);
+            sqlCon.Close();
+
+            CrystalReport.crptProductReport crptProduct = new CrystalReport.crptProductReport();
+            crptProduct.Database.Tables["CostlyProduct"].SetDataSource(dsProduct.Tables[0]);
+            crptProduct.Database.Tables["ZeroProduct"].SetDataSource(dsProduct.Tables[1]);
+            DataTable dtbl = new DataTable();
+            dtbl.Columns.Add("WaterMarkPath", typeof(string));
+            dtbl.Rows.Add(@"C:\Users\admin\Desktop\w1.jpg");
+            crptProduct.Database.Tables["ReportDetails"].SetDataSource(dtbl);
+            crvViewer.ReportSource = null;
+            crvViewer.ReportSource = crptProduct;
+        }
+
+        /*
+         * Written By Dotnet Mob (Youtube Channel)
+         * 13-Jun-2017
+         * How to Display Multiple Tables in Crystal Report
+         * Video Tutorial : https://youtu.be/EIRm8nHVqP8 (Comment Your doubts in this Youtube Video)
+         * Website : https://www.DotnetMob.com
+         */
+    }
+}
